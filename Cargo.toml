@@ -1,0 +1,34 @@
+[features]
+
+[package]
+name = "bempp-archer2"
+version = "0.1.0"
+edition = "2021"
+authors = [
+    "Timo Betcke <timo.betcke@gmail.com>",
+    "Srinath Kailasa <srinathkailasa@gmail.com>",
+    "Matthew Scroggs <rust@mscroggs.co.uk>",
+]
+description = "Run scripts and benchmarks for Archer2"
+license = "MIT"
+homepage = "https://github.com/bempp/bempp-archer2"
+repository = "https://github.com/bempp/bempp-archer2"
+readme = "README.md"
+keywords = ["numerics"]
+categories = ["mathematics", "science"]
+
+
+[dependencies]
+rlst = { git = "https://github.com/linalg-rs/rlst", features = ["disable_system_blas_lapack", "openblas"]}
+bempp = { git = "https://github.com/bempp/bempp-rs.git", branch = "evaluator_integration"}
+clap = { version = "4.*", features = ["derive"] }
+mpi = { version = "0.8.*", features = ["complex"]}
+ndelement = { git = "https://github.com/bempp/ndelement"}
+ndgrid = { git = "https://github.com/bempp/ndgrid"}
+green-kernels = { git = "https://github.com/bempp/green-kernels"}
+
+[[bin]]
+name = "laplace_single_layer"
+
+
+[lints.clippy]
