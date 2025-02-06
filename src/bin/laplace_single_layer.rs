@@ -3,7 +3,7 @@ use std::time::Instant;
 
 use bempp::boundary_assemblers::BoundaryAssemblerOptions;
 use clap::Parser;
-use mpi::traits::Communicator;
+use mpi::traits::{Communicator, CommunicatorCollectives};
 use ndelement::{ciarlet::LagrangeElementFamily, types::ReferenceCellType};
 use rlst::{zero_element, AsApply, OperatorBase};
 
@@ -62,13 +62,17 @@ fn main() {
     let quad_degree = 6;
     // Get the number of cells in the grid.
 
-    println!("Instantiating function space.");
+    if rank == 0 {
+        println!("Instantiating function space.");
+    }
     let now = Instant::now();
     let space = bempp::function::FunctionSpace::new(
         &grid,
         &LagrangeElementFamily::<f64>::new(1, ndelement::types::Continuity::Standard),
     );
     let elapsed = now.elapsed();
+
+    world.barrier();
 
     if rank == 0 {
         println!("Function space generated in {} seconds", elapsed.as_secs());
