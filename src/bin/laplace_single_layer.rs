@@ -16,6 +16,9 @@ struct Args {
     /// Number of tasks per node. Each task is one process
     #[arg(long, default_value_t = 32)]
     tasks_per_node: usize,
+    /// Number of threads per task
+    #[arg(long, default_value_t = 4)]
+    threads_per_task: usize,
     /// Sphere refinement level r. Total number of elements: 8 * 4^r
     #[arg(long, default_value_t = 9)]
     refinement_level: usize,
@@ -38,23 +41,28 @@ struct Args {
 fn main() {
     let args = Args::parse();
 
+    // Initialise Rayon threading
+    rayon::ThreadPoolBuilder::new()
+        .num_threads(args.threads_per_task)
+        .build_global()
+        .unwrap();
+
     let universe = mpi::initialize().unwrap();
     let world = universe.world();
     let rank = world.rank();
 
-    let refinement_level = 5;
-
     let now = Instant::now();
-    let grid = bempp::shapes::regular_sphere::<f64, _>(refinement_level, 1, &world);
+    let grid = bempp::shapes::regular_sphere::<f64, _>(args.refinement_level as u32, 1, &world);
     let elapsed = now.elapsed();
 
     if rank == 0 {
-        println!("Grid generated in {} seconds", elapsed.as_secs());
+        println!("Grid generated in {} ms", elapsed.as_millis());
     }
 
     let quad_degree = 6;
     // Get the number of cells in the grid.
 
+    println!("Instantiating function space.");
     let now = Instant::now();
     let space = bempp::function::FunctionSpace::new(
         &grid,
@@ -83,6 +91,7 @@ fn main() {
     //         &qrule.points,
     //     );
 
+    println!("Instantiating kifmm evaluator");
     let now = Instant::now();
     let kifmm_evaluator =
         bempp::greens_function_evaluators::kifmm_evaluator::KiFmmEvaluator::from_spaces(
@@ -100,6 +109,7 @@ fn main() {
         println!("kifmm evaluator generated in {} seconds", elapsed.as_secs());
     }
 
+    println!("Instantiating Laplace evaluator");
     let now = Instant::now();
     let laplace_evaluator =
         bempp::laplace::evaluator::single_layer(&space, &space, kifmm_evaluator.r(), &options);
@@ -118,6 +128,7 @@ fn main() {
         .local_mut()
         .fill_from_seed_equally_distributed(rank as usize);
 
+    println!("Apply the evalutor.");
     let now = Instant::now();
     let _res = laplace_evaluator.apply(x.r());
     let elapsed = now.elapsed();

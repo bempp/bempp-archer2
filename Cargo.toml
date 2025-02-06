@@ -26,6 +26,7 @@ mpi = { version = "0.8.*", features = ["complex"]}
 ndelement = { git = "https://github.com/bempp/ndelement"}
 ndgrid = { git = "https://github.com/bempp/ndgrid"}
 green-kernels = { git = "https://github.com/bempp/green-kernels"}
+rayon = "1.9"
 
 [[bin]]
 name = "laplace_single_layer"
