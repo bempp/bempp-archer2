@@ -83,8 +83,6 @@ fn main() {
 
     let qrule = options.get_regular_quadrature_rule(ReferenceCellType::Triangle);
 
-    // We now have to get all the points from the grid. We do this by iterating through all cells.
-
     // let kernel_evaluator =
     //     bempp::greens_function_evaluators::dense_evaluator::DenseEvaluator::from_spaces(
     //         &space,
@@ -95,7 +93,6 @@ fn main() {
     //         &qrule.points,
     //     );
 
-    println!("Instantiating kifmm evaluator");
     let now = Instant::now();
     let kifmm_evaluator =
         bempp::greens_function_evaluators::kifmm_evaluator::KiFmmEvaluator::from_spaces(
@@ -113,7 +110,6 @@ fn main() {
         println!("kifmm evaluator generated in {} seconds", elapsed.as_secs());
     }
 
-    println!("Instantiating Laplace evaluator");
     let now = Instant::now();
     let laplace_evaluator =
         bempp::laplace::evaluator::single_layer(&space, &space, kifmm_evaluator.r(), &options);
@@ -132,7 +128,6 @@ fn main() {
         .local_mut()
         .fill_from_seed_equally_distributed(rank as usize);
 
-    println!("Apply the evalutor.");
     let now = Instant::now();
     let _res = laplace_evaluator.apply(x.r());
     let elapsed = now.elapsed();
@@ -141,5 +136,8 @@ fn main() {
         println!("Operator applied in {} seconds", elapsed.as_secs());
     }
 
-    println!("Run successfully completed.");
+    world.barrier();
+    if rank == 0 {
+        println!("Run successfully completed.");
+    }
 }

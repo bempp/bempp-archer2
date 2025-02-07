@@ -22,3 +22,6 @@ Cargo.lock
 
 # Slurm out files should not end up in version control
 *.out
+
+# The scratch directory with run outputs
+scratch/

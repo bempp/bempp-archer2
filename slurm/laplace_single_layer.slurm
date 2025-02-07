@@ -23,7 +23,10 @@ module load cray-mpich-ucx
 export WORK="/work/e738/e738/betcke"
 export HOME="/home/e738/e738/betcke"
 
-export SCRATCH=${WORK}/laplace_single_layer_${SLURM_JOBID}
+# The project directory
+export PROJECT=${WORK}/projects/bempp-archer2
+
+export SCRATCH=${PROJECT}/scratch/laplace_single_layer_${SLURM_JOBID}
 
 # Load Spack
 
@@ -80,12 +83,9 @@ export OUTPUT=${SCRATCH}/laplace_single_layer_output_${SLURM_JOBID}
 
 # We now call srun to start the actual job
 
-echo "Starting Job" 
-
 srun --hint=nomultithread --distribution=block:block \
-"${WORK}/${script_name}" --cores-per-node $cores_per_node --tasks-per-node $tasks_per_node \
+"${PROJECT}/target/release/${script_name}" --cores-per-node $cores_per_node --tasks-per-node $tasks_per_node \
 --threads-per-task $threads_per_task --local-tree-depth $local_tree_depth --global-tree-depth $global_tree_depth \
 --refinement-level $refinement_level \
 
 
-echo "Finished Job" 
