@@ -16,9 +16,6 @@ struct Args {
     /// Number of tasks per node. Each task is one process
     #[arg(long, default_value_t = 32)]
     tasks_per_node: usize,
-    /// Number of threads per task
-    #[arg(long, default_value_t = 4)]
-    threads_per_task: usize,
     /// Sphere refinement level r. Total number of elements: 8 * 4^r
     #[arg(long, default_value_t = 9)]
     refinement_level: usize,
@@ -40,12 +37,6 @@ struct Args {
 
 fn main() {
     let args = Args::parse();
-
-    // Initialise Rayon threading
-    rayon::ThreadPoolBuilder::new()
-        .num_threads(args.threads_per_task)
-        .build_global()
-        .unwrap();
 
     let universe = mpi::initialize().unwrap();
     let world = universe.world();

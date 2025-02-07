@@ -8,7 +8,7 @@
 #SBATCH --job-name=laplace_single_layer
 #SBATCH --time=0:10:0
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=32
+#SBATCH --ntasks-per-node=5
 #SBATCH --cpus-per-task=4
 
 # Replace [budget code] below with your project code (e.g. t01)
@@ -46,13 +46,11 @@ export SRUN_CPUS_PER_TASK=$SLURM_CPUS_PER_TASK
 
 
 # Name of the script to run
-script_name="laplace_single_layer"
+script_name="laplace_single_layer_fmm_validate"
 
 # Set the parameters for the task distribution
-# By defalt we have 128 cores, 32 MPI processes (tasks) per node
-# and 4 threads per task
 cores_per_node=128
-tasks_per_node=32
+tasks_per_node=5
 threads_per_task=4
 
 # We set the number of Openblas threads to 1. We don't require its threading
@@ -74,21 +72,12 @@ global_tree_depth=4;
 # global tree are further refined.
 local_tree_depth=3;
 
-# We specify the refinement level for the test sphere. The number of elements in the sphere is given
-# by n_elements = 8 * 4^(refinement_level). # For refinement_level=9 there are roughly
-# 2.1 million elements. With 6 quadrature points per element this gives around 12m points,
-# which we are distributing into 64 global tree leaves, leaving around 200,000 points per local tree.
-
-refinement_level=9
-
 # We now specify the output file
-export OUTPUT=${SCRATCH}/laplace_single_layer_output_${SLURM_JOBID}
+export OUTPUT=${SCRATCH}/laplace_single_layer_fmm_validate_output_${SLURM_JOBID}
 
 # We now call srun to start the actual job
 
 srun --hint=nomultithread --distribution=block:block \
-"${PROJECT}/target/release/${script_name}" --cores-per-node $cores_per_node --tasks-per-node $tasks_per_node \
---local-tree-depth $local_tree_depth --global-tree-depth $global_tree_depth \
---refinement-level $refinement_level \
+"${PROJECT}/target/release/${script_name}" 
 
 

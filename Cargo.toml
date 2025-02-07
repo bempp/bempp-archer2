@@ -27,9 +27,13 @@ ndelement = { git = "https://github.com/bempp/ndelement"}
 ndgrid = { git = "https://github.com/bempp/ndgrid"}
 green-kernels = { git = "https://github.com/bempp/green-kernels"}
 rayon = "1.9"
+num = "0.4"
+itertools = "0.13"
 
 [[bin]]
 name = "laplace_single_layer"
 
+[[bin]]
+name = "laplace_single_layer_fmm_validate"
 
 [lints.clippy]
